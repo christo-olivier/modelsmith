@@ -1,9 +1,12 @@
 [tool.poetry]
 name = "modelsmith"
-version = "0.2.0"
-description = "Get Pydantic Models and Python types as LLM responses from Vertex AI models."
+version = "0.2.1"
+description = "Get Pydantic models and Python types as LLM responses from Google Vertex AI models."
 authors = ["Christo Olivier <mail@christoolivier.com>"]
 maintainers = ["Christo Olivier <mail@christoolivier.com>"]
+homepage = "https://github.com/christo-olivier/modelsmith"
+repository = "https://github.com/christo-olivier/modelsmith"
+keywords = ["vertexai", "pydantic", "models", "types", "llm"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "modelsmith", from = "src"}]
