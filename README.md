@@ -86,6 +86,31 @@ forge = Forge(
 
 response = forge.generate("I have lived in Irvine, CA and Dallas TX")
 
+print(response)  # [City(city='Irvine', state='CA'), City(city='Dallas', state='TX')]
+```
+
+## Using different model types
+
+Using a different Vertex AI model is as simple as passing it to the Forge. Taking the example above lets use `text-bison` instead of `gemini-pro`.
+
+```python
+from modelsmith import Forge
+from pydantic import BaseModel, Field
+from vertexai.language_models import TextGenerationModel  # import the correct class
+
+
+class City(BaseModel):
+    city: str = Field(description="The name of the city")
+    state: str = Field(description="2-letter abbreviation of the state")
+
+
+# text-bison instead of gemini-pro
+forge = Forge(
+    model=TextGenerationModel.from_pretrained("text-bison"),
+    response_model=list[City],
+)
+
+response = forge.generate("I have lived in Irvine, CA and Dallas TX")
 
 print(response)  # [City(city='Irvine', state='CA'), City(city='Dallas', state='TX')]
 ```
@@ -137,8 +162,9 @@ from vertexai.generative_models import GenerativeModel
 
 # Create your custom prompt
 my_prompt = inspect.cleandoc("""
-    You are extracting numbers from user input and combing them into one number. 
-    Take into account numbers written as text as well as in numerical format.
+    You are extracting city names from user provided text. You are only to extract
+    city names and you should ignore country names or any other entities that are not
+    cities.
 
     You MUST take the types of the OUTPUT SCHEMA into account and adjust your
     provided text to fit the required types.
@@ -150,13 +176,15 @@ my_prompt = inspect.cleandoc("""
 
 # Create your forge instance, passing your prompt
 forge = Forge(
-    model=GenerativeModel("gemini-1.0-pro"), response_model=int, prompt=my_prompt
+    model=GenerativeModel("gemini-1.0-pro"), response_model=list, prompt=my_prompt
 )
 
 # Generate a your response
-response = forge.generate("23 five seventy two")
+response = forge.generate(
+    "Berlin is the capital of Germany. London is the capital of England."
+)
 
-print(response)  # 23572
+print(response)  # ['Berlin', 'London']
 ```
 
 The same example above would also work if the `response_model_json` was left out of the prompt due to this being added automatically if missing.
@@ -169,19 +197,22 @@ from vertexai.generative_models import GenerativeModel
 
 # Create your custom prompt
 my_prompt = inspect.cleandoc("""
-    You are extracting numbers from user input and combing them into one number. 
-    Take into account numbers written as text as well as in numerical format.
+    You are extracting city names from user provided text. You are only to extract
+    city names and you should ignore country names or any other entities that are not
+    cities.
 """)
 
 # Create your forge instance, passing your prompt
 forge = Forge(
-    model=GenerativeModel("gemini-1.0-pro"), response_model=int, prompt=my_prompt
+    model=GenerativeModel("gemini-1.0-pro"), response_model=list, prompt=my_prompt
 )
 
 # Generate a your response
-response = forge.generate("23 five seventy two")
+response = forge.generate(
+    "Berlin is the capital of Germany. London is the capital of England."
+)
 
-print(response)  # 23572
+print(response)  # ['Berlin', 'London']
 ```
 
 ## Placing user_input inside your prompt
@@ -234,18 +265,18 @@ from vertexai.generative_models import GenerativeModel
 
 # Create your custom prompt
 my_prompt = inspect.cleandoc("""
-    You are extracting numbers from user input and combing them into one number. 
-    Take into account numbers written as text as well as in numerical format.
+    You are extracting city names from user provided text. You are only to extract
+    city names and you should ignore country names or any other entities that are not
+    cities.
 
     {{ user_input_prefix }}
     {{ user_input }}
-
 """)
 
 # Create your forge instance, passing your prompt
 forge = Forge(
     model=GenerativeModel("gemini-1.0-pro"),
-    response_model=int,
+    response_model=list,
     prompt=my_prompt,
     max_retries=2,
 )
@@ -258,13 +289,17 @@ model_settings = {
 
 # Prompt template variable values to pass
 prompt_values = {
-    "user_input_prefix": "I have a the following numbers: ",
+    "user_input_prefix": "I have a the following text to analyze: ",
 }
 
 # Generate a your response
 response = forge.generate(
-    "23 five seventy two", prompt_values=prompt_values, model_settings=model_settings
+    "Berlin is the capital of Germany. London is the capital of England.",
+    prompt_values=prompt_values,
+    model_settings=model_settings,
 )
+
+print(response)  # ['Berlin', 'London']
 ```
 
 ## Learn more
