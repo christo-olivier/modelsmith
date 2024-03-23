@@ -4,32 +4,38 @@ from typing import Any
 import pytest
 from modelsmith.exceptions import ModelNotDerivedError
 from modelsmith.forge import Forge
-from vertexai.language_models import TextGenerationModel
+from vertexai.generative_models import GenerativeModel
+from vertexai.language_models import ChatModel, TextGenerationModel
 
 from tests.models import City, User
-from tests.settings import MODEL_SETTINGS_PARAMS
+from tests.settings import MODEL_INSTANCE_PARAMS, MODEL_SETTINGS_PARAMS
 
 
+@pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
 @pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_few_shot_text_model_pydantic_model(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_few_shot_pydantic_model(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
-    This test ensures the Forge works as expected with a TextGenerationModel when trying
+    This test ensures the Forge works as expected with a ChatModel when trying
     to extract an entity using a few-shot prompt approach.
     """
 
     examples = inspect.cleandoc("""
     input: John Doe is forty years old. Lives in Alton, England
-    output: {"name":"John Doe", "age":40, "city": "Alton", "country": "England"}
+    output: '{"name":"John Doe", "age":40, "city": "Alton", "country": "England"}'
 
     input: Sarah Green lives in London, UK. She is 32 years old.
-    output: {"name":"Sarah Green","age":32,"city":"London","country":"UK"}
+    output: '{"name":"Sarah Green","age":32,"city":"London","country":"UK"}'
     """)
-    forge = Forge(model=text_model, response_model=User)
+    forge = Forge(model=model, response_model=User)
 
     response = forge.generate(
         "Terry Tate 60. Lives in Irvine, United States.",
@@ -43,17 +49,22 @@ def test_forge_few_shot_text_model_pydantic_model(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_zero_shot_text_model_pydantic_model(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_zero_shot_pydantic_model(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
-    This test ensures the Forge works as expected with a TextGenerationModel when trying
+    This test ensures the Forge works as expected with a ChatModel when trying
     to extract an entity using a few-shot prompt approach.
     """
-    forge = Forge(model=text_model, response_model=User)
+    forge = Forge(model=model, response_model=User)
 
     response = forge.generate(
         "Terry Tate 60. Lives in Irvine, United States.", model_settings=model_settings
@@ -65,11 +76,16 @@ def test_forge_zero_shot_text_model_pydantic_model(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_zero_shot_text_model_pydantic_model_raise_exception(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_zero_shot_pydantic_model_raise_exception(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     This test checks that when a model cannot be derived and the `raise_on_failure` flag
@@ -77,7 +93,7 @@ def test_forge_zero_shot_text_model_pydantic_model_raise_exception(
     """
     with pytest.raises(expected_exception=ModelNotDerivedError):
         forge = Forge(
-            model=text_model,
+            model=model,
             response_model=User,
             max_retries=1,
         )
@@ -89,18 +105,23 @@ def test_forge_zero_shot_text_model_pydantic_model_raise_exception(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_zero_shot_text_model_pydantic_model_return_none(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_zero_shot_pydantic_model_return_none(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     This test checks that when a model cannot be derived and the `raise_on_failure` flag
     is set to False, None is return as the value instead of an exception being raised.
     """
     forge = Forge(
-        model=text_model,
+        model=model,
         response_model=User,
         max_retries=1,
         raise_on_failure=False,
@@ -115,11 +136,16 @@ def test_forge_zero_shot_text_model_pydantic_model_return_none(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_few_shot_text_model_python_list(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_few_shot_python_list(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     Test that the model returns a python list of string values from the input text.
@@ -133,12 +159,12 @@ def test_forge_few_shot_text_model_python_list(
     """)
 
     forge = Forge(
-        model=text_model,
+        model=model,
         response_model=list[str],
     )
 
     response = forge.generate(
-        "Terry Tate 60. Lives in Irvine, United States.",
+        "Terry Tate 60. Lives in Irvine in the United States.",
         prompt_values={"examples": examples},
         model_settings=model_settings,
     )
@@ -147,22 +173,27 @@ def test_forge_few_shot_text_model_python_list(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_zero_shot_text_model_python_list(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_zero_shot_python_list(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     Test that the model returns a python list of string values from the input text.
     """
     forge = Forge(
-        model=text_model,
+        model=model,
         response_model=list[str],
     )
 
     response = forge.generate(
-        "Terry Tate 60. Lives in Irvine in the United States.",
+        "Terry Tate, 60. Lives in Irvine in the United States.",
         model_settings=model_settings,
     )
 
@@ -170,18 +201,23 @@ def test_forge_zero_shot_text_model_python_list(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_zero_shot_text_model_python_list_integers(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_zero_shot_python_list_integers(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     Test that the model returns a python list of integers from a text input
     containing numbers written as strings and integers.
     """
     forge = Forge(
-        model=text_model,
+        model=model,
         response_model=list[int],
     )
 
@@ -194,11 +230,16 @@ def test_forge_zero_shot_text_model_python_list_integers(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_few_shot_text_model_python_list_floats(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_few_shot_python_list_floats(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     Test that the model returns a python list of floats from a text input containing
@@ -213,7 +254,7 @@ def test_forge_few_shot_text_model_python_list_floats(
     """)
 
     forge = Forge(
-        model=text_model,
+        model=model,
         response_model=list[float],
     )
 
@@ -227,18 +268,23 @@ def test_forge_few_shot_text_model_python_list_floats(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_zero_shot_text_model_python_list_floats(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_zero_shot_python_list_floats(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     Test that the model returns a python list of floats from the numbers encountered
     in a text input.
     """
     forge = Forge(
-        model=text_model,
+        model=model,
         response_model=list[float],
     )
 
@@ -251,27 +297,32 @@ def test_forge_zero_shot_text_model_python_list_floats(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_few_shot_text_model_python_float(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_few_shot_python_float(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     Test that the model returns a python float from the number written as a word.
     """
     examples = inspect.cleandoc("""
-        Make sure to convert numbers writen as strings to floats.
+        Make sure to convert numbers written as strings to floats.
 
-        input_text: I took three tests.
+        input: I took three tests.
         output: 3.0
 
-        input_text: I ate 2 apples.
+        input: I ate 2 apples.
         output: 2.0
     """)
 
     forge = Forge(
-        model=text_model,
+        model=model,
         response_model=float,
     )
 
@@ -285,17 +336,22 @@ def test_forge_few_shot_text_model_python_float(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_zero_shot_text_model_python_float(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_zero_shot_python_float(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     Test that the model returns a python float from the number written as a word.
     """
     forge = Forge(
-        model=text_model,
+        model=model,
         response_model=float,
     )
 
@@ -308,18 +364,23 @@ def test_forge_zero_shot_text_model_python_float(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_few_shot_text_model_python_integer(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_few_shot_python_integer(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     Test that the model returns a python integer from the input text where a float is
     provided.
     """
     examples = inspect.cleandoc("""
-        Make sure to convert numbers writen as strings to integers and convert 
+        Make sure to convert numbers written as strings to integers and convert 
         float numbers to integers by rounding down to the nearest integer.
 
         input: I took three tests.
@@ -330,7 +391,7 @@ def test_forge_few_shot_text_model_python_integer(
     """)
 
     forge = Forge(
-        model=text_model,
+        model=model,
         response_model=int,
     )
 
@@ -344,18 +405,23 @@ def test_forge_few_shot_text_model_python_integer(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_zero_shot_text_model_python_integer(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_zero_shot_python_integer(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     Test that the model returns a python integer with rounding. At present it seems that
     the model is rounding up at half values. So 1.5 will be returned as 2 rather than 1.
     """
     forge = Forge(
-        model=text_model,
+        model=model,
         response_model=int,
     )
 
@@ -368,18 +434,23 @@ def test_forge_zero_shot_text_model_python_integer(
 
 
 @pytest.mark.parametrize(
+    "model",
+    MODEL_INSTANCE_PARAMS,
+)
+@pytest.mark.parametrize(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
-def test_forge_zero_shot_text_model_list_pydantic_location(
-    text_model: TextGenerationModel, model_settings: dict[str, Any]
+def test_forge_zero_shot_list_pydantic_location(
+    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model_settings: dict[str, Any],
 ) -> None:
     """
     Test that the model returns a python list of pydantic City models from the input
     text.
     """
     forge = Forge(
-        model=text_model,
+        model=model,
         response_model=list[City],
     )
 
