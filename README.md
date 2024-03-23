@@ -158,7 +158,7 @@ Here is an example of using a custom prompt that includes the `response_model_js
 import inspect
 
 from modelsmith import Forge
-from vertexai.generative_models import GenerativeModel
+from vertexai.language_models import TextGenerationModel
 
 # Create your custom prompt
 my_prompt = inspect.cleandoc("""
@@ -171,12 +171,13 @@ my_prompt = inspect.cleandoc("""
 
     Here is the OUTPUT SCHEMA:
     {{ response_model_json }}
-    
 """)
 
 # Create your forge instance, passing your prompt
 forge = Forge(
-    model=GenerativeModel("gemini-1.0-pro"), response_model=list, prompt=my_prompt
+    model=TextGenerationModel.from_pretrained("text-bison"),
+    response_model=list,
+    prompt=my_prompt,
 )
 
 # Generate a your response
@@ -193,7 +194,7 @@ The same example above would also work if the `response_model_json` was left out
 import inspect
 
 from modelsmith import Forge
-from vertexai.generative_models import GenerativeModel
+from vertexai.language_models import TextGenerationModel
 
 # Create your custom prompt
 my_prompt = inspect.cleandoc("""
@@ -204,7 +205,9 @@ my_prompt = inspect.cleandoc("""
 
 # Create your forge instance, passing your prompt
 forge = Forge(
-    model=GenerativeModel("gemini-1.0-pro"), response_model=list, prompt=my_prompt
+    model=TextGenerationModel.from_pretrained("text-bison"),
+    response_model=list,
+    prompt=my_prompt,
 )
 
 # Generate a your response
