@@ -158,8 +158,9 @@ class Forge(Generic[T]):
             except ValidationError as e:
                 exceptions.append(e)
 
-        # Raise any errors that occurred during the JSON validation
-        if exceptions:
+        # Raise any errors that occurred during the JSON validation if a valid model
+        # was not returned
+        if exceptions and model is None:
             raise CombinedException(exceptions)
 
         return model
