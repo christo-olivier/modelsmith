@@ -1,4 +1,5 @@
 import inspect
+import json
 from typing import Any
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, meta, select_autoescape
@@ -115,7 +116,7 @@ class Prompt:
 
     def _process_kwargs(self, prompt_values: dict[str, Any]) -> dict[str, Any]:
         """
-        Process the prompt kwargs to handle cases around user_input and response_model.
+        Process the prompt kwargs to handle cases around response_model.
 
         :param prompt_values: The keyword arguments to use to render the prompt.
         :return: Processed keyword arguments
@@ -123,6 +124,8 @@ class Prompt:
         response_model: BaseModel | None = prompt_values.get("response_model")
         if response_model:
             # Add response model schema
-            prompt_values["response_model_json"] = response_model.model_json_schema()
+            prompt_values["response_model_json"] = json.dumps(
+                response_model.model_json_schema()
+            )
 
         return prompt_values
