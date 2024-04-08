@@ -2,8 +2,7 @@ import inspect
 from typing import Any
 
 import pytest
-from modelsmith.exceptions import ModelNotDerivedError
-from modelsmith.forge import Forge
+from modelsmith import Forge, ModelNotDerivedError
 from vertexai.generative_models import GenerativeModel
 from vertexai.language_models import ChatModel, TextGenerationModel
 
