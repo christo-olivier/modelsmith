@@ -1,6 +1,6 @@
 import inspect
 
-from modelsmith.prompt import Prompt
+from modelsmith import Prompt
 
 
 def test_render_prompt_user_input() -> None:

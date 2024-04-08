@@ -13,18 +13,18 @@ class CombinedException(Exception):
         return ", ".join(str(e) for e in self.exceptions)
 
 
-class PatternNotFound(Exception):
+class ModelNotDerivedError(Exception):
     """
-    Exception used when a pattern being searched for has not been found.
+    Exception raised when a pydantic model could not be created from the response of
+    the LLM.
     """
 
     pass
 
 
-class ModelNotDerivedError(Exception):
+class PatternNotFound(Exception):
     """
-    Exception raised when a pydantic model could not be created from the response of
-    the LLM.
+    Exception used when a pattern being searched for has not been found.
     """
 
     pass
