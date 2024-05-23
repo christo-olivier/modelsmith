@@ -1,9 +1,12 @@
 import inspect
 import json
+import logging
 from typing import Any
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, meta, select_autoescape
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 RESPONSE_MODEL_TEXT = inspect.cleandoc("""
     Your output MUST be a JSON object that conforms to the JSON Schema below. All
@@ -112,7 +115,13 @@ class Prompt:
         if "user_input" in prompt_kwargs and "user_input" not in self.prompt_variables:
             prompt_to_render += f"\n{prompt_kwargs['user_input']}\n"
 
-        return self._env.from_string(prompt_to_render).render(**prompt_kwargs)
+        # Render the prompt and log it for debugging purposes.
+        rendered_prompt = self._env.from_string(prompt_to_render).render(
+            **prompt_kwargs
+        )
+        logger.debug(f"Rendered prompt:\n{rendered_prompt}")
+
+        return rendered_prompt
 
     def _process_kwargs(self, prompt_values: dict[str, Any]) -> dict[str, Any]:
         """

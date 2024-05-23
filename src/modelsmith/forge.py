@@ -98,7 +98,6 @@ class Forge(Generic[T]):
             for attempt in Retrying(stop=stop_after_attempt(self.max_retries)):
                 with attempt:
                     try:
-                        logger.debug(f"Prompt sent to LLM:\n{prepared_prompt}")
                         response = self.model.send(prepared_prompt, model_settings)
                         model_response = self._process_response(response)
                     except (CombinedException, PatternNotFound) as e:
