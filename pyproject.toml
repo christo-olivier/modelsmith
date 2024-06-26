@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "modelsmith"
-version = "0.4.1"
+version = "0.4.2"
 description = "Get Pydantic models and Python types as LLM responses from Google Vertex AI models."
 authors = ["Christo Olivier <mail@christoolivier.com>"]
 maintainers = ["Christo Olivier <mail@christoolivier.com>"]
