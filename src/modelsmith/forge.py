@@ -59,7 +59,13 @@ class Forge(Generic[T]):
                                  return a response in the form of the response_model. If
                                  False, return None.
         """
-        self.model = LanguageModelWrapper(model)
+        # check if a Vertex AI model is being passed directly or if the new
+        # Wrapper classes are being used.
+        self.model = (
+            LanguageModelWrapper(model)
+            if isinstance(model, (ChatModel, GenerativeModel, TextGenerationModel))
+            else model
+        )
         self.response_model = ResponseModel(response_model)
         self.prompt = Prompt(prompt)
 

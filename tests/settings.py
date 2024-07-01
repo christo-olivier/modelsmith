@@ -1,13 +1,16 @@
 import pytest
-from vertexai.generative_models import GenerativeModel
-from vertexai.language_models import ChatModel, TextGenerationModel
+from modelsmith.language_model import (
+    VertexAIChatModel,
+    VertexAIGenerativeModel,
+    VertexAITextGenerationModel,
+)
 
 MODEL_INSTANCE_PARAMS = [
-    pytest.param(TextGenerationModel.from_pretrained("text-bison"), id="text_model"),
-    pytest.param(ChatModel.from_pretrained("chat-bison"), id="chat_model"),
-    pytest.param(GenerativeModel("gemini-1.0-pro"), id="gemini_1_0_pro"),
-    pytest.param(GenerativeModel("gemini-1.5-pro"), id="gemini_1_5_pro"),
-    pytest.param(GenerativeModel("gemini-1.5-flash"), id="gemini_1_5_flash"),
+    pytest.param(VertexAITextGenerationModel("text-bison"), id="text_model"),
+    pytest.param(VertexAIChatModel("chat-bison"), id="chat_model"),
+    pytest.param(VertexAIGenerativeModel("gemini-1.0-pro"), id="gemini_1_0_pro"),
+    pytest.param(VertexAIGenerativeModel("gemini-1.5-pro"), id="gemini_1_5_pro"),
+    pytest.param(VertexAIGenerativeModel("gemini-1.5-flash"), id="gemini_1_5_flash"),
 ]
 
 MODEL_SETTINGS_PARAMS = [
