@@ -3,11 +3,10 @@ from typing import Any, Generic, Iterable, TypeVar
 
 from pydantic import ValidationError
 from tenacity import RetryError, Retrying, stop_after_attempt
-from vertexai.generative_models import GenerationResponse, GenerativeModel
+from vertexai.generative_models import GenerativeModel
 from vertexai.language_models import (
     ChatModel,
     TextGenerationModel,
-    TextGenerationResponse,
 )
 
 from modelsmith.enums import ResponseModelType
@@ -16,7 +15,13 @@ from modelsmith.exceptions import (
     ModelNotDerivedError,
     PatternNotFound,
 )
-from modelsmith.language_model import LanguageModelWrapper
+from modelsmith.language_models import (
+    LanguageModelWrapper,
+    OpenAIModel,
+    VertexAIChatModel,
+    VertexAIGenerativeModel,
+    VertexAITextGenerationModel,
+)
 from modelsmith.prompt import Prompt
 from modelsmith.response_model import ResponseModel
 from modelsmith.utilities import find_patterns
@@ -35,7 +40,13 @@ class Forge(Generic[T]):
     def __init__(
         self,
         *,
-        model: ChatModel | GenerativeModel | TextGenerationModel,
+        model: ChatModel
+        | GenerativeModel
+        | TextGenerationModel
+        | VertexAIChatModel
+        | VertexAIGenerativeModel
+        | VertexAITextGenerationModel
+        | OpenAIModel,
         response_model: type[T],
         prompt: str | None = None,
         match_patterns: str | Iterable[str] = (r"```json(.*?)```", r"\{.*\}"),
@@ -120,9 +131,7 @@ class Forge(Generic[T]):
 
         return model_response
 
-    def _process_response(
-        self, llm_response: TextGenerationResponse | GenerationResponse
-    ) -> T | None:
+    def _process_response(self, llm_response: str) -> T | None:
         """
         Process the response returned by the LLM into the response_model requested or
         if no response_model was requested return the response as is.
@@ -130,12 +139,14 @@ class Forge(Generic[T]):
         :param response: Response received from the LLM.
         :return: The pydantic model of the response_model or None.
         """
-        logger.debug(f"Processing LLM Response:\n{llm_response.text}")
+        logger.debug(f"Processing LLM Response:\n{llm_response}")
 
+        # Declare the placeholder model object derived from the Pydantic model and
+        # the JSON string from the LLM.
         model: T | None = None
 
         json_strings = find_patterns(
-            input_string=llm_response.text, patterns=self.match_patterns
+            input_string=llm_response, patterns=self.match_patterns
         )
 
         # Check JSON output was found

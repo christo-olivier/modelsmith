@@ -3,6 +3,7 @@ import warnings
 from abc import ABC, abstractmethod
 from typing import Any, Callable
 
+from openai import OpenAI
 from vertexai.generative_models import GenerationResponse, GenerativeModel
 from vertexai.language_models import (
     ChatModel,
@@ -31,7 +32,33 @@ class OpenAIModel(BaseLanguageModel):
     Class that wraps the OpenAI API to handle sending inputs and receiving outputs.
     """
 
-    pass
+    def __init__(
+        self,
+        model_name: str,
+        api_key: str | None = None,
+        organization: str | None = None,
+        project: str | None = None,
+    ) -> None:
+        self.model_name = model_name
+        self._client = OpenAI(
+            api_key=api_key, organization=organization, project=project
+        )
+
+    def send(self, input: str, model_settings: dict[str, Any] | None = None) -> str:
+        """
+        Send the input to the LLM using the correct method from the underlying model.
+        Return the response from the LLM.
+
+        :param input: The input string to send to the LLM.
+        :param model_settings: The dictionary containing the model's settings.
+        :return: The response from the LLM.
+        """
+        response = self._client.chat.completions.create(
+            model=self.model_name,
+            messages=[{"role": "user", "content": input}],
+            **(model_settings or {}),
+        )  # type: ignore
+        return response.choices[0].message.content
 
 
 class VertexAIChatModel(BaseLanguageModel):
@@ -53,8 +80,13 @@ class VertexAIChatModel(BaseLanguageModel):
         """
         Send the input to the LLM using the correct method from the underlying model.
         Return the response from the LLM.
+
+        :param input: The input string to send to the LLM.
+        :param model_settings: The dictionary containing the model's settings.
+        :return: The response from the LLM.
         """
-        return self.chat_session.send_message(input, **(model_settings or {}))
+        response = self.chat_session.send_message(input, **(model_settings or {}))
+        return response.text
 
 
 class VertexAIGenerativeModel(BaseLanguageModel):
@@ -75,8 +107,13 @@ class VertexAIGenerativeModel(BaseLanguageModel):
         """
         Send the input to the LLM using the correct method from the underlying model.
         Return the response from the LLM.
+
+        :param input: The input string to send to the LLM.
+        :param model_settings: The dictionary containing the model's settings.
+        :return: The response from the LLM.
         """
-        return self.model.generate_content(input, generation_config=model_settings)
+        response = self.model.generate_content(input, generation_config=model_settings)
+        return response.text
 
 
 class VertexAITextGenerationModel(BaseLanguageModel):
@@ -97,8 +134,13 @@ class VertexAITextGenerationModel(BaseLanguageModel):
         """
         Send the input to the LLM using the correct method from the underlying model.
         Return the response from the LLM.
+
+        :param input: The input string to send to the LLM.
+        :param model_settings: The dictionary containing the model's settings.
+        :return: The response from the LLM.
         """
-        return self.model.predict(input, **(model_settings or {}))
+        response = self.model.predict(input, **(model_settings or {}))
+        return response.text
 
 
 class LanguageModelWrapper:
@@ -140,18 +182,18 @@ class LanguageModelWrapper:
             "The model type must be ChatModel, TextGenerationModel or GenerativeModel"
         )
 
-    def send(
-        self, input: str, model_settings: dict[str, Any] | None = None
-    ) -> GenerationResponse | TextGenerationResponse:
+    def send(self, input: str, model_settings: dict[str, Any] | None = None) -> str:
         """
         Send the input to the LLM using the correct method from the underlying model.
         Return the response from the LLM.
 
         :param input: The input string to send to the LLM.
         :param model_settings: The dictionary containing the model's settings.
+        :return: The response from the LLM.
         """
         # For a GenerativeModel the function signature differs from the other models
         if isinstance(self.model, GenerativeModel):
-            return self._llm_send_method(input, generation_config=model_settings)
-
-        return self._llm_send_method(input, **(model_settings or {}))
+            response = self._llm_send_method(input, generation_config=model_settings)
+        else:
+            response = self._llm_send_method(input, **(model_settings or {}))
+        return response.text

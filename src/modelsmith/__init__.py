@@ -1,11 +1,19 @@
 from .exceptions import ModelNotDerivedError, PatternNotFound
 from .forge import Forge
-from .language_model import LanguageModelWrapper
+from .language_models import (
+    OpenAIModel,
+    VertexAIChatModel,
+    VertexAIGenerativeModel,
+    VertexAITextGenerationModel,
+)
 from .prompt import Prompt
 
 __all__ = [
     "Forge",
-    "LanguageModelWrapper",
+    "OpenAIModel",
+    "VertexAIChatModel",
+    "VertexAIGenerativeModel",
+    "VertexAITextGenerationModel",
     "Prompt",
     "ModelNotDerivedError",
     "PatternNotFound",
