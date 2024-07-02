@@ -12,7 +12,7 @@ T = TypeVar("T")
 
 class ResponseModel(Generic[T]):
     """
-    Class used to create the response model that used by the Forge. It provides
+    Class used to create the response model that is used by the Forge. It provides
     functionality to deal with both Pydantic and plain Python response models.
     """
 

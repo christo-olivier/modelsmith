@@ -3,6 +3,12 @@ from typing import Any
 
 import pytest
 from modelsmith import Forge, ModelNotDerivedError
+from modelsmith.language_models import (
+    OpenAIModel,
+    VertexAIChatModel,
+    VertexAIGenerativeModel,
+    VertexAITextGenerationModel,
+)
 from vertexai.generative_models import GenerativeModel
 from vertexai.language_models import ChatModel, TextGenerationModel
 
@@ -18,8 +24,15 @@ from tests.settings import MODEL_INSTANCE_PARAMS, MODEL_SETTINGS_PARAMS
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_few_shot_pydantic_model(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -55,8 +68,15 @@ def test_forge_few_shot_pydantic_model(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_zero_shot_pydantic_model(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -82,8 +102,15 @@ def test_forge_zero_shot_pydantic_model(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_zero_shot_pydantic_model_raise_exception(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -111,8 +138,15 @@ def test_forge_zero_shot_pydantic_model_raise_exception(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_zero_shot_pydantic_model_return_none(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -142,8 +176,15 @@ def test_forge_zero_shot_pydantic_model_return_none(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_few_shot_python_list(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -179,8 +220,15 @@ def test_forge_few_shot_python_list(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_zero_shot_python_list(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -207,8 +255,15 @@ def test_forge_zero_shot_python_list(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_zero_shot_python_list_integers(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -236,8 +291,15 @@ def test_forge_zero_shot_python_list_integers(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_few_shot_python_list_floats(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -274,8 +336,15 @@ def test_forge_few_shot_python_list_floats(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_zero_shot_python_list_floats(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -303,8 +372,15 @@ def test_forge_zero_shot_python_list_floats(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_few_shot_python_float(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -342,8 +418,15 @@ def test_forge_few_shot_python_float(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_zero_shot_python_float(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -370,8 +453,15 @@ def test_forge_zero_shot_python_float(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_few_shot_python_integer(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -411,8 +501,15 @@ def test_forge_few_shot_python_integer(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_zero_shot_python_integer(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -440,8 +537,15 @@ def test_forge_zero_shot_python_integer(
     "model_settings",
     MODEL_SETTINGS_PARAMS,
 )
+@pytest.mark.sequential
 def test_forge_zero_shot_list_pydantic_location(
-    model: ChatModel | GenerativeModel | TextGenerationModel,
+    model: ChatModel
+    | GenerativeModel
+    | TextGenerationModel
+    | VertexAIChatModel
+    | VertexAIGenerativeModel
+    | VertexAITextGenerationModel
+    | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """

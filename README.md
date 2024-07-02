@@ -3,14 +3,15 @@
 </p>
 
 # Modelsmith
-### Modelsmith is a Python library that allows you to get structured responses in the form of Pydantic models and Python types from Google's Vertex AI models.
+### Modelsmith is a Python library that allows you to get structured responses in the form of Pydantic models and Python types from Google Vertex AI and OpenAI models.
 
-Currently it allows you to use three classes of model:
-- __ChatModel__ (most commonly used with `chat-bison`)
-- __TextGenerationModel__ (most commonly used with `text-bison`)
-- __GenerativeModel__ (most commonly used with `gemini-pro`)
+Currently it allows you to use the following classes of model:
+- __OpenAIModel__ (most commonly used with `gpt-3.5-turbo`, `gpt-4` and `gpt-4o`)
+- __VertexAIChatModel__ (most commonly used with `chat-bison`)
+- __VertexAITextGenerationModel__ (most commonly used with `text-bison`)
+- __VertexAIGenerativeModel__ (most commonly used with `gemini-pro`)
 
-Modelsmith allows a unified interface over all of these. It has been designed to be extensible and can adapt to other models in the future.
+Modelsmith provides a unified interface over all of these. It has been designed to be extensible and can adapt to other models in the future.
 
 # Notable Features
 
@@ -33,17 +34,29 @@ pip install modelsmith
 
 Authentication to Google Cloud is done via the Application Default Credentials flow. So make sure you have ADC configured. See [Google's documentation](https://cloud.google.com/docs/authentication/provide-credentials-adc) for more details.
 
+## Open AI Authentication
+Authentication to OpenAI is done via the OpenAI flow. See the [OpenAI documentation](https://platform.openai.com/docs/quickstart/step-2-set-up-your-api-key) for more details.
+
+The `OpenAIModel` allows you to pass the `api_key`, `organization` and `project` when you initialize the class instance. If you do not pass this in it will be inferred from the environment variables `OPENAI_API_KEY`, `OPENAI_ORG_ID` and `OPENAI_PROJECT_ID` as per the OpenAI documentation.
 
 # Getting started
 
-## Extracting a Pydantic models
+## NB! API changes in new release
+
+The API has changed in release 0.5.0. In this release you do not pass Vertex AI models directly from the `vertexai` python package. 
+instead you use the wrapper classes defined in the `modelsmith.language_models` module.
+
+For convenience the new model wrapper classes can be imported directly from the `modelsmith` package without needing to reference the `language_models` module.
+
+The old style API will still be supported in release 0.5.0 but will be deprecated after this release.
+
+## Extracting a Pydantic model
 
 Lets look at an example of extracting a Pydantic model from some text.
 
 ```python
-from modelsmith import Forge
+from modelsmith import Forge, OpenAIModel
 from pydantic import BaseModel, Field
-from vertexai.generative_models import GenerativeModel
 
 
 # Define the pydantic model you want to receive as the response
@@ -55,7 +68,7 @@ class User(BaseModel):
 
 
 # Create your forge instance
-forge = Forge(model=GenerativeModel("gemini-1.0-pro"), response_model=User)
+forge = Forge(model=OpenAIModel("gpt-3.5-turbo"), response_model=User)
 
 # Generate a User instance from the prompt
 user = forge.generate("Terry Tate 60. Lives in Irvine, United States.")
@@ -68,9 +81,8 @@ print(user)  # name='Terry Tate' age=60 city='Irvine' country='United States'
 Modelsmith does not restrict you to either Pydantic models or Python types. You can combine them in the same response. Below we extract a list of Pydantic model instances.
 
 ```python
-from modelsmith import Forge
+from modelsmith import Forge, VertexAIGenerativeModel
 from pydantic import BaseModel, Field
-from vertexai.generative_models import GenerativeModel
 
 
 class City(BaseModel):
@@ -80,7 +92,7 @@ class City(BaseModel):
 
 # Pass a list of Pydantic models to the response_model argument.
 forge = Forge(
-    model=GenerativeModel("gemini-1.0-pro"),
+    model=VertexAIGenerativeModel("gemini-1.5-pro"),
     response_model=list[City],
 )
 
@@ -91,12 +103,11 @@ print(response)  # [City(city='Irvine', state='CA'), City(city='Dallas', state='
 
 ## Using different model types
 
-Using a different Vertex AI model is as simple as passing it to the Forge. Taking the example above lets use `text-bison` instead of `gemini-pro`.
+Using a different model is as simple as passing the desired model class to the Forge. Taking the example above lets use `text-bison` instead of `gemini-pro`.
 
 ```python
-from modelsmith import Forge
+from modelsmith import Forge, VertexAITextGenerationModel  # import the correct class
 from pydantic import BaseModel, Field
-from vertexai.language_models import TextGenerationModel  # import the correct class
 
 
 class City(BaseModel):
@@ -106,7 +117,30 @@ class City(BaseModel):
 
 # text-bison instead of gemini-pro
 forge = Forge(
-    model=TextGenerationModel.from_pretrained("text-bison"),
+    model=VertexAITextGenerationModel("text-bison"),
+    response_model=list[City],
+)
+
+response = forge.generate("I have lived in Irvine, CA and Dallas TX")
+
+print(response)  # [City(city='Irvine', state='CA'), City(city='Dallas', state='TX')]
+```
+
+If we want to use an OpenAI model the same applies. Simply select the appropriate model class, specify which OpenAI model to use (in this case `gpt-4o`), and pass it to the `Forge` instance.
+
+```python
+from modelsmith import Forge, OpenAIModel  # import the correct class
+from pydantic import BaseModel, Field
+
+
+class City(BaseModel):
+    city: str = Field(description="The name of the city")
+    state: str = Field(description="2-letter abbreviation of the state")
+
+
+# text-bison instead of gemini-pro
+forge = Forge(
+    model=OpenAIModel("gpt-4o"),
     response_model=list[City],
 )
 
@@ -122,11 +156,12 @@ The previous examples use the built in prompt template in zero-shot mode. The de
 ```python
 import inspect
 
-from modelsmith import Forge
-from vertexai.generative_models import GenerativeModel
+from modelsmith import Forge, VertexAIGenerativeModel
 
 # Create your forge instance
-forge = Forge(model=GenerativeModel("gemini-1.0-pro"), response_model=list[str])
+forge = Forge(
+    model=VertexAIGenerativeModel("gemini-1.5-flash"), response_model=list[str]
+)
 
 # Define examples, using inspect.cleandoc to remove indentation
 examples = inspect.cleandoc("""
@@ -157,8 +192,7 @@ Here is an example of using a custom prompt that includes the `response_model_js
 ```python
 import inspect
 
-from modelsmith import Forge
-from vertexai.language_models import TextGenerationModel
+from modelsmith import Forge, OpenAIModel
 
 # Create your custom prompt
 my_prompt = inspect.cleandoc("""
@@ -175,7 +209,7 @@ my_prompt = inspect.cleandoc("""
 
 # Create your forge instance, passing your prompt
 forge = Forge(
-    model=TextGenerationModel.from_pretrained("text-bison"),
+    model=OpenAIModel("gpt-4o"),
     response_model=list,
     prompt=my_prompt,
 )
@@ -193,8 +227,7 @@ The same example above would also work if the `response_model_json` was left out
 ```python
 import inspect
 
-from modelsmith import Forge
-from vertexai.language_models import TextGenerationModel
+from modelsmith import Forge, VertexAITextGenerationModel
 
 # Create your custom prompt
 my_prompt = inspect.cleandoc("""
@@ -205,7 +238,7 @@ my_prompt = inspect.cleandoc("""
 
 # Create your forge instance, passing your prompt
 forge = Forge(
-    model=TextGenerationModel.from_pretrained("text-bison"),
+    model=VertexAITextGenerationModel("text-bison"),
     response_model=list,
     prompt=my_prompt,
 )
@@ -241,7 +274,7 @@ You can change this by passing the `max_retries` parameter to the `Forge` class.
 ```python
 # Create your forge instance, setting the number of retries
 forge = Forge(
-    model=GenerativeModel("gemini-1.0-pro"), response_model=int, max_retries=2
+    model=VertexAIGenerativeModel("gemini-1.0-pro"), response_model=int, max_retries=2
 )
 ```
 
@@ -263,8 +296,7 @@ You can pass prompt template variables and model settings by passing them to the
 ```python
 import inspect
 
-from modelsmith import Forge
-from vertexai.generative_models import GenerativeModel
+from modelsmith import Forge, OpenAIModel
 
 # Create your custom prompt
 my_prompt = inspect.cleandoc("""
@@ -278,7 +310,7 @@ my_prompt = inspect.cleandoc("""
 
 # Create your forge instance, passing your prompt
 forge = Forge(
-    model=GenerativeModel("gemini-1.0-pro"),
+    model=OpenAIModel("gpt-4o"),
     response_model=list,
     prompt=my_prompt,
     max_retries=2,
