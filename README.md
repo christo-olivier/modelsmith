@@ -5,13 +5,13 @@
 # Modelsmith
 ### Modelsmith is a Python library that allows you to get structured responses in the form of Pydantic models and Python types from Google Vertex AI and OpenAI models.
 
-Currently it allows you to use three classes of model:
+Currently it allows you to use the following classes of model:
 - __OpenAIModel__ (most commonly used with `gpt-3.5-turbo`, `gpt-4` and `gpt-4o`)
 - __VertexAIChatModel__ (most commonly used with `chat-bison`)
 - __VertexAITextGenerationModel__ (most commonly used with `text-bison`)
 - __VertexAIGenerativeModel__ (most commonly used with `gemini-pro`)
 
-Modelsmith allows a unified interface over all of these. It has been designed to be extensible and can adapt to other models in the future.
+Modelsmith provides a unified interface over all of these. It has been designed to be extensible and can adapt to other models in the future.
 
 # Notable Features
 
@@ -37,9 +37,11 @@ Authentication to Google Cloud is done via the Application Default Credentials f
 ## Open AI Authentication
 Authentication to OpenAI is done via the OpenAI flow. See the [OpenAI documentation](https://platform.openai.com/docs/quickstart/step-2-set-up-your-api-key) for more details.
 
+The `OpenAIModel` allows you to pass the `api_key`, `organization` and `project` when you initialize the class instance. If you do not pass this in it will be inferred from the environment variables `OPENAI_API_KEY`, `OPENAI_ORG_ID` and `OPENAI_PROJECT_ID` as per the OpenAI documentation.
+
 # Getting started
 
-## API changes in new release
+## NB! API changes in new release
 
 The API has changed in release 0.5.0. In this release you do not pass Vertex AI models directly from the `vertexai` python package. 
 instead you use the wrapper classes defined in the `modelsmith.language_models` module.
@@ -48,7 +50,7 @@ For convenience the new model wrapper classes can be imported directly from the 
 
 The old style API will still be supported in release 0.5.0 but will be deprecated after this release.
 
-## Extracting a Pydantic models
+## Extracting a Pydantic model
 
 Lets look at an example of extracting a Pydantic model from some text.
 
@@ -101,7 +103,7 @@ print(response)  # [City(city='Irvine', state='CA'), City(city='Dallas', state='
 
 ## Using different model types
 
-Using a different Vertex AI model is as simple as passing it to the Forge. Taking the example above lets use `text-bison` instead of `gemini-pro`.
+Using a different model is as simple as passing the desired model class to the Forge. Taking the example above lets use `text-bison` instead of `gemini-pro`.
 
 ```python
 from modelsmith import Forge, VertexAITextGenerationModel  # import the correct class
@@ -124,6 +126,29 @@ response = forge.generate("I have lived in Irvine, CA and Dallas TX")
 print(response)  # [City(city='Irvine', state='CA'), City(city='Dallas', state='TX')]
 ```
 
+If we want to use an OpenAI model the same applies. Simply select the appropriate model class, specify which OpenAI model to use (in this case `gpt-4o`), and pass it to the `Forge` instance.
+
+```python
+from modelsmith import Forge, OpenAIModel  # import the correct class
+from pydantic import BaseModel, Field
+
+
+class City(BaseModel):
+    city: str = Field(description="The name of the city")
+    state: str = Field(description="2-letter abbreviation of the state")
+
+
+# text-bison instead of gemini-pro
+forge = Forge(
+    model=OpenAIModel("gpt-4o"),
+    response_model=list[City],
+)
+
+response = forge.generate("I have lived in Irvine, CA and Dallas TX")
+
+print(response)  # [City(city='Irvine', state='CA'), City(city='Dallas', state='TX')]
+```
+
 ## Using the default prompt template
 
 The previous examples use the built in prompt template in zero-shot mode. The default template also works in few-shot mode and allows you to pass in examples via the `prompt_values` parameter of the `generate` method. The default prompt template has a template variable called `examples` that we pass our example text to. The following example shows how this can be used.
@@ -134,7 +159,9 @@ import inspect
 from modelsmith import Forge, VertexAIGenerativeModel
 
 # Create your forge instance
-forge = Forge(model=VertexAIGenerativeModel("gemini-1.5-flash"), response_model=list[str])
+forge = Forge(
+    model=VertexAIGenerativeModel("gemini-1.5-flash"), response_model=list[str]
+)
 
 # Define examples, using inspect.cleandoc to remove indentation
 examples = inspect.cleandoc("""

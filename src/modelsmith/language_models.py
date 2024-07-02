@@ -1,4 +1,3 @@
-import logging
 import warnings
 from abc import ABC, abstractmethod
 from typing import Any, Callable
@@ -11,12 +10,16 @@ from vertexai.language_models import (
     TextGenerationResponse,
 )
 
-logger = logging.getLogger(__name__)
+DEPRECATION_WARNING = (
+    "Using VertexAI classes directly is deprecated and will be removed in "
+    "a future release. Please import the classes from the `language_model` "
+    "module instead."
+)
 
 
 class BaseLanguageModel(ABC):
     @abstractmethod
-    def send(self, input: str, model_settings: dict[str, Any] | None = None) -> Any:
+    def send(self, input: str, model_settings: dict[str, Any] | None = None) -> str:
         """
         Send the input to the LLM using the correct method from the underlying model.
         Return the response from the LLM.
@@ -39,6 +42,15 @@ class OpenAIModel(BaseLanguageModel):
         organization: str | None = None,
         project: str | None = None,
     ) -> None:
+        """
+        Construct a new synchronous openai client instance.
+
+        Automatically infers the following arguments from their corresponding
+        environment variables if they are not provided:
+        - `api_key` from `OPENAI_API_KEY`
+        - `organization` from `OPENAI_ORG_ID`
+        - `project` from `OPENAI_PROJECT_ID`
+        """
         self.model_name = model_name
         self._client = OpenAI(
             api_key=api_key, organization=organization, project=project
@@ -143,7 +155,7 @@ class VertexAITextGenerationModel(BaseLanguageModel):
         return response.text
 
 
-class LanguageModelWrapper:
+class _LanguageModelWrapper:
     """
     Class that wraps the LLM model to handle sending inputs and receiving outputs.
     """
@@ -159,11 +171,7 @@ class LanguageModelWrapper:
         Set the method to use to send the user input to the LLM.
         """
         warnings.warn(
-            (
-                "Using VertexAI classes directly is deprecated and will be removed in "
-                "a future release. Please import the classes from the `language_model` "
-                "module instead."
-            ),
+            DEPRECATION_WARNING,
             DeprecationWarning,
             stacklevel=2,
         )

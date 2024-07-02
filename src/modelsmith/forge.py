@@ -16,11 +16,11 @@ from modelsmith.exceptions import (
     PatternNotFound,
 )
 from modelsmith.language_models import (
-    LanguageModelWrapper,
     OpenAIModel,
     VertexAIChatModel,
     VertexAIGenerativeModel,
     VertexAITextGenerationModel,
+    _LanguageModelWrapper,
 )
 from modelsmith.prompt import Prompt
 from modelsmith.response_model import ResponseModel
@@ -73,7 +73,7 @@ class Forge(Generic[T]):
         # check if a Vertex AI model is being passed directly or if the new
         # Wrapper classes are being used.
         self.model = (
-            LanguageModelWrapper(model)
+            _LanguageModelWrapper(model)
             if isinstance(model, (ChatModel, GenerativeModel, TextGenerationModel))
             else model
         )
