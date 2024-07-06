@@ -3,11 +3,6 @@ from typing import Any, Generic, Iterable, TypeVar
 
 from pydantic import ValidationError
 from tenacity import RetryError, Retrying, stop_after_attempt
-from vertexai.generative_models import GenerativeModel
-from vertexai.language_models import (
-    ChatModel,
-    TextGenerationModel,
-)
 
 from modelsmith.enums import ResponseModelType
 from modelsmith.exceptions import (
@@ -16,11 +11,11 @@ from modelsmith.exceptions import (
     PatternNotFound,
 )
 from modelsmith.language_models import (
+    AnthropicModel,
     OpenAIModel,
     VertexAIChatModel,
     VertexAIGenerativeModel,
     VertexAITextGenerationModel,
-    _LanguageModelWrapper,
 )
 from modelsmith.prompt import Prompt
 from modelsmith.response_model import ResponseModel
@@ -40,9 +35,7 @@ class Forge(Generic[T]):
     def __init__(
         self,
         *,
-        model: ChatModel
-        | GenerativeModel
-        | TextGenerationModel
+        model: AnthropicModel
         | VertexAIChatModel
         | VertexAIGenerativeModel
         | VertexAITextGenerationModel
@@ -70,13 +63,7 @@ class Forge(Generic[T]):
                                  return a response in the form of the response_model. If
                                  False, return None.
         """
-        # check if a Vertex AI model is being passed directly or if the new
-        # Wrapper classes are being used.
-        self.model = (
-            _LanguageModelWrapper(model)
-            if isinstance(model, (ChatModel, GenerativeModel, TextGenerationModel))
-            else model
-        )
+        self.model = model
         self.response_model = ResponseModel(response_model)
         self.prompt = Prompt(prompt)
 

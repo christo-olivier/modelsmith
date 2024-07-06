@@ -1,26 +1,38 @@
 import pytest
 from modelsmith.language_models import (
+    AnthropicModel,
     OpenAIModel,
     VertexAIChatModel,
     VertexAIGenerativeModel,
     VertexAITextGenerationModel,
 )
-from vertexai.generative_models import GenerativeModel
-from vertexai.language_models import ChatModel, TextGenerationModel
 
 MODEL_INSTANCE_PARAMS = [
     pytest.param(
-        TextGenerationModel.from_pretrained("text-bison"), id="text_model_old_style"
+        AnthropicModel("claude-3-haiku-20240307"), id="anthropic_claude_3_haiku_model"
     ),
-    pytest.param(VertexAITextGenerationModel("text-bison"), id="text_model"),
-    pytest.param(ChatModel.from_pretrained("chat-bison"), id="chat_model_old_style"),
-    pytest.param(VertexAIChatModel("chat-bison"), id="chat_model"),
-    pytest.param(VertexAIGenerativeModel("gemini-1.0-pro"), id="gemini_1_0_pro"),
-    pytest.param(VertexAIGenerativeModel("gemini-1.5-pro"), id="gemini_1_5_pro"),
-    pytest.param(GenerativeModel("gemini-1.5-flash"), id="gemini_1_5_flash_old_style"),
-    pytest.param(VertexAIGenerativeModel("gemini-1.5-flash"), id="gemini_1_5_flash"),
-    pytest.param(OpenAIModel("gpt-3.5-turbo"), id="gpt-3.5-turbo"),
-    pytest.param(OpenAIModel("gpt-4o"), id="gpt-4o"),
+    pytest.param(
+        AnthropicModel("claude-3-opus-20240229"), id="anthropic_claude_3_opus_model"
+    ),
+    pytest.param(
+        AnthropicModel("claude-3-5-sonnet-20240620"),
+        id="anthropic_claude_3.5_sonnet_model",
+    ),
+    pytest.param(
+        VertexAITextGenerationModel("text-bison"), id="vertexai_text_bison_model"
+    ),
+    pytest.param(VertexAIChatModel("chat-bison"), id="vertexai_chat_bison_model"),
+    pytest.param(
+        VertexAIGenerativeModel("gemini-1.0-pro"), id="vertexai_gemini_1_0_pro"
+    ),
+    pytest.param(
+        VertexAIGenerativeModel("gemini-1.5-pro"), id="vertexai_gemini_1_5_pro"
+    ),
+    pytest.param(
+        VertexAIGenerativeModel("gemini-1.5-flash"), id="vertexai_gemini_1_5_flash"
+    ),
+    pytest.param(OpenAIModel("gpt-3.5-turbo"), id="openai_gpt-3.5-turbo"),
+    pytest.param(OpenAIModel("gpt-4o"), id="openai_gpt-4o"),
 ]
 
 MODEL_SETTINGS_PARAMS = [
