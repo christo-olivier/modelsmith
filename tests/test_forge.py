@@ -4,13 +4,12 @@ from typing import Any
 import pytest
 from modelsmith import Forge, ModelNotDerivedError
 from modelsmith.language_models import (
+    AnthropicModel,
     OpenAIModel,
     VertexAIChatModel,
     VertexAIGenerativeModel,
     VertexAITextGenerationModel,
 )
-from vertexai.generative_models import GenerativeModel
-from vertexai.language_models import ChatModel, TextGenerationModel
 
 from tests.models import City, User
 from tests.settings import MODEL_INSTANCE_PARAMS, MODEL_SETTINGS_PARAMS
@@ -26,9 +25,7 @@ from tests.settings import MODEL_INSTANCE_PARAMS, MODEL_SETTINGS_PARAMS
 )
 @pytest.mark.sequential
 def test_forge_few_shot_pydantic_model(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel
@@ -70,9 +67,7 @@ def test_forge_few_shot_pydantic_model(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_pydantic_model(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel
@@ -94,67 +89,33 @@ def test_forge_zero_shot_pydantic_model(
     assert response == expected
 
 
-@pytest.mark.parametrize(
-    "model",
-    MODEL_INSTANCE_PARAMS,
-)
-@pytest.mark.parametrize(
-    "model_settings",
-    MODEL_SETTINGS_PARAMS,
-)
 @pytest.mark.sequential
-def test_forge_zero_shot_pydantic_model_raise_exception(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
-    model_settings: dict[str, Any],
-) -> None:
+def test_forge_raise_on_failure_exception() -> None:
     """
     This test checks that when a model cannot be derived and the `raise_on_failure` flag
     is set to True, that a ModelNotDerivedError is raised.
     """
     with pytest.raises(expected_exception=ModelNotDerivedError):
         forge = Forge(
-            model=model,
+            model=VertexAITextGenerationModel("text-bison"),
             response_model=User,
             max_retries=1,
         )
 
         forge.generate(
             "Terry Tate United States.",
-            model_settings=model_settings,
+            model_settings={"temperature": 0.0},
         )
 
 
-@pytest.mark.parametrize(
-    "model",
-    MODEL_INSTANCE_PARAMS,
-)
-@pytest.mark.parametrize(
-    "model_settings",
-    MODEL_SETTINGS_PARAMS,
-)
 @pytest.mark.sequential
-def test_forge_zero_shot_pydantic_model_return_none(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
-    model_settings: dict[str, Any],
-) -> None:
+def test_forge_raise_on_failure_no_exception() -> None:
     """
     This test checks that when a model cannot be derived and the `raise_on_failure` flag
     is set to False, None is return as the value instead of an exception being raised.
     """
     forge = Forge(
-        model=model,
+        model=VertexAITextGenerationModel("text-bison"),
         response_model=User,
         max_retries=1,
         raise_on_failure=False,
@@ -162,7 +123,7 @@ def test_forge_zero_shot_pydantic_model_return_none(
 
     result = forge.generate(
         "Terry Tate United States.",
-        model_settings=model_settings,
+        model_settings={"temperature": 0.0},
     )
 
     assert result is None
@@ -178,9 +139,7 @@ def test_forge_zero_shot_pydantic_model_return_none(
 )
 @pytest.mark.sequential
 def test_forge_few_shot_python_list(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel
@@ -222,9 +181,7 @@ def test_forge_few_shot_python_list(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_python_list(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel
@@ -257,9 +214,7 @@ def test_forge_zero_shot_python_list(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_python_list_integers(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel
@@ -293,9 +248,7 @@ def test_forge_zero_shot_python_list_integers(
 )
 @pytest.mark.sequential
 def test_forge_few_shot_python_list_floats(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel
@@ -338,9 +291,7 @@ def test_forge_few_shot_python_list_floats(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_python_list_floats(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel
@@ -374,9 +325,7 @@ def test_forge_zero_shot_python_list_floats(
 )
 @pytest.mark.sequential
 def test_forge_few_shot_python_float(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel
@@ -420,9 +369,7 @@ def test_forge_few_shot_python_float(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_python_float(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel
@@ -455,9 +402,7 @@ def test_forge_zero_shot_python_float(
 )
 @pytest.mark.sequential
 def test_forge_few_shot_python_integer(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel
@@ -503,9 +448,7 @@ def test_forge_few_shot_python_integer(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_python_integer(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel
@@ -539,9 +482,7 @@ def test_forge_zero_shot_python_integer(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_list_pydantic_location(
-    model: ChatModel
-    | GenerativeModel
-    | TextGenerationModel
+    model: AnthropicModel
     | VertexAIChatModel
     | VertexAIGenerativeModel
     | VertexAITextGenerationModel

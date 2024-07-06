@@ -1,7 +1,7 @@
-import warnings
 from abc import ABC, abstractmethod
-from typing import Any, Callable
+from typing import Any
 
+from anthropic import Anthropic
 from openai import OpenAI
 from vertexai.generative_models import GenerationResponse, GenerativeModel
 from vertexai.language_models import (
@@ -10,11 +10,7 @@ from vertexai.language_models import (
     TextGenerationResponse,
 )
 
-DEPRECATION_WARNING = (
-    "Using VertexAI classes directly is deprecated and will be removed in "
-    "a future release. Please import the classes from the `language_model` "
-    "module instead."
-)
+DEFAULT_MAX_TOKENS = 1024
 
 
 class BaseLanguageModel(ABC):
@@ -28,6 +24,42 @@ class BaseLanguageModel(ABC):
         :param model_settings: The dictionary containing the model's settings.
         """
         pass
+
+
+class AnthropicModel(BaseLanguageModel):
+    """
+    Class that wraps the Anthropic API to handle sending inputs and receiving outputs.
+    """
+
+    def __init__(self, model_name: str, api_key: str | None = None) -> None:
+        """
+        Create a new synchronous anthropic client instance.
+        """
+        self.model_name = model_name
+        self._client = Anthropic(api_key=api_key)
+
+    def send(self, input: str, model_settings: dict[str, Any] | None = None) -> str:
+        """
+        Send the input to the LLM using the correct method from the underlying model.
+        Return the text response from the LLM.
+
+        :param input: The input string to send to the LLM.
+        :param model_settings: The dictionary containing the model's settings.
+        :return: The response from the LLM.
+        """
+        # If `max_tokens` not provided in model settings then set it to the default
+        # of 1024
+        model_settings = model_settings or {}
+        if "max_tokens" not in model_settings:
+            model_settings["max_tokens"] = DEFAULT_MAX_TOKENS
+
+        response = self._client.messages.create(
+            model=self.model_name,
+            messages=[{"role": "user", "content": input}],
+            **(model_settings or {}),
+        )
+
+        return response.content[0].text
 
 
 class OpenAIModel(BaseLanguageModel):
@@ -152,56 +184,4 @@ class VertexAITextGenerationModel(BaseLanguageModel):
         :return: The response from the LLM.
         """
         response = self.model.predict(input, **(model_settings or {}))
-        return response.text
-
-
-class _LanguageModelWrapper:
-    """
-    Class that wraps the LLM model to handle sending inputs and receiving outputs.
-    """
-
-    def __init__(
-        self, model: ChatModel | GenerativeModel | TextGenerationModel
-    ) -> None:
-        self.model = model
-        self._llm_send_method = self._init_llm_send_method()
-
-    def _init_llm_send_method(self) -> Callable:
-        """
-        Set the method to use to send the user input to the LLM.
-        """
-        warnings.warn(
-            DEPRECATION_WARNING,
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-        if isinstance(self.model, TextGenerationModel):
-            return self.model.predict
-
-        if isinstance(self.model, GenerativeModel):
-            return self.model.generate_content
-
-        if isinstance(self.model, ChatModel):
-            chat_session = self.model.start_chat()
-            return chat_session.send_message
-
-        raise TypeError(
-            "The model type must be ChatModel, TextGenerationModel or GenerativeModel"
-        )
-
-    def send(self, input: str, model_settings: dict[str, Any] | None = None) -> str:
-        """
-        Send the input to the LLM using the correct method from the underlying model.
-        Return the response from the LLM.
-
-        :param input: The input string to send to the LLM.
-        :param model_settings: The dictionary containing the model's settings.
-        :return: The response from the LLM.
-        """
-        # For a GenerativeModel the function signature differs from the other models
-        if isinstance(self.model, GenerativeModel):
-            response = self._llm_send_method(input, generation_config=model_settings)
-        else:
-            response = self._llm_send_method(input, **(model_settings or {}))
         return response.text

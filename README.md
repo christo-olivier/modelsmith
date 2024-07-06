@@ -6,10 +6,11 @@
 ### Modelsmith is a Python library that allows you to get structured responses in the form of Pydantic models and Python types from Google Vertex AI and OpenAI models.
 
 Currently it allows you to use the following classes of model:
-- __OpenAIModel__ (most commonly used with `gpt-3.5-turbo`, `gpt-4` and `gpt-4o`)
-- __VertexAIChatModel__ (most commonly used with `chat-bison`)
-- __VertexAITextGenerationModel__ (most commonly used with `text-bison`)
-- __VertexAIGenerativeModel__ (most commonly used with `gemini-pro`)
+- __AnthropicModel__ (used with Anthropic's set of models such as `claude-3-haiku`, `claude-3-sonnet`, `claude-3-opus` and `claude-3_5-sonnet`)
+- __OpenAIModel__ (used with OpenAI's set of models such as `gpt-3.5-turbo`, `gpt-4` and `gpt-4o`)
+- __VertexAIChatModel__ (used with Google Vertex AI's chat models such as `chat-bison`)
+- __VertexAITextGenerationModel__ (used with Google Vertex AI's text generation models such as `text-bison`)
+- __VertexAIGenerativeModel__ (used with Google Vertex AI's generative models such as `gemini-pro`)
 
 Modelsmith provides a unified interface over all of these. It has been designed to be extensible and can adapt to other models in the future.
 
@@ -126,10 +127,10 @@ response = forge.generate("I have lived in Irvine, CA and Dallas TX")
 print(response)  # [City(city='Irvine', state='CA'), City(city='Dallas', state='TX')]
 ```
 
-If we want to use an OpenAI model the same applies. Simply select the appropriate model class, specify which OpenAI model to use (in this case `gpt-4o`), and pass it to the `Forge` instance.
+If we want to use an Anthropic model the same applies. Simply select the appropriate model class, specify which Anthropic model to use (in this case `claude-3-haiku-20240307`), and pass it to the `Forge` instance.
 
 ```python
-from modelsmith import Forge, OpenAIModel  # import the correct class
+from modelsmith import Forge, AnthropicModel  # import the correct class
 from pydantic import BaseModel, Field
 
 
@@ -138,9 +139,9 @@ class City(BaseModel):
     state: str = Field(description="2-letter abbreviation of the state")
 
 
-# text-bison instead of gemini-pro
+# Anthropic's claude-3-haiku-20240307 instead of gemini-pro
 forge = Forge(
-    model=OpenAIModel("gpt-4o"),
+    model=AnthropicModel("claude-3-haiku-20240307"),
     response_model=list[City],
 )
 
