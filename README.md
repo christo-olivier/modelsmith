@@ -31,6 +31,12 @@ Install Modelsmith using pip or your favourite python package manager.
 pip install modelsmith
 ```
 
+## Anthropic Authentication
+
+Authentication to Anthropic is done via the Anthropic flow. See the [Anthropic documentation](https://docs.anthropic.com/en/docs/quickstart#set-your-api-key) for more details. 
+
+The `AnthropicModel` class takes an optional `api_key` parameter. If not provided, the `ANTHROPIC_API_KEY` environment variable will be used.
+
 ## Google Cloud Authentication
 
 Authentication to Google Cloud is done via the Application Default Credentials flow. So make sure you have ADC configured. See [Google's documentation](https://cloud.google.com/docs/authentication/provide-credentials-adc) for more details.

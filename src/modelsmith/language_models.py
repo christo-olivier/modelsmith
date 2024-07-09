@@ -1,3 +1,4 @@
+import copy
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -34,6 +35,10 @@ class AnthropicModel(BaseLanguageModel):
     def __init__(self, model_name: str, api_key: str | None = None) -> None:
         """
         Create a new synchronous anthropic client instance.
+
+        This automatically infers the following arguments from their corresponding
+        environment variables if they are not provided:
+        - `api_key` from ANTHROPIC_API_KEY
         """
         self.model_name = model_name
         self._client = Anthropic(api_key=api_key)
@@ -48,15 +53,15 @@ class AnthropicModel(BaseLanguageModel):
         :return: The response from the LLM.
         """
         # If `max_tokens` not provided in model settings then set it to the default
-        # of 1024
-        model_settings = model_settings or {}
-        if "max_tokens" not in model_settings:
-            model_settings["max_tokens"] = DEFAULT_MAX_TOKENS
+        # of 1024. Do a deep copy so that the original model settings are not modified.
+        settings = copy.deepcopy(model_settings) if model_settings else {}
+        if "max_tokens" not in settings:
+            settings["max_tokens"] = DEFAULT_MAX_TOKENS
 
         response = self._client.messages.create(
             model=self.model_name,
             messages=[{"role": "user", "content": input}],
-            **(model_settings or {}),
+            **settings,
         )
 
         return response.content[0].text
