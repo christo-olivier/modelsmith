@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "modelsmith"
 version = "0.6.1"
-description = "Get Pydantic models and Python types as LLM responses from Google Vertex AI and OpenAI models."
+description = "Get Pydantic models and Python types as LLM responses from Anthropic, Google Vertex AI, and OpenAI models."
 authors = ["Christo Olivier <mail@christoolivier.com>"]
 maintainers = ["Christo Olivier <mail@christoolivier.com>"]
 homepage = "https://github.com/christo-olivier/modelsmith"
@@ -25,6 +25,9 @@ pytest = "^8.1.1"
 python-levenshtein = "^0.25.0"
 mypy = "^1.9.0"
 python-dotenv = "^1.0.1"
+mkdocs = "^1.6.0"
+mkdocs-material = "^9.5.29"
+mike = "^2.1.2"
 
 [build-system]
 requires = ["poetry-core"]
