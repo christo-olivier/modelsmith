@@ -17,7 +17,7 @@ Modelsmith provides a unified interface over all of these. It has been designed 
 # Notable Features
 
 - __Structured Responses__: Specify both Pydantic models and Python types as the outputs of your LLM responses.
-- __Templating__: Use Jinja2 templating in your prompts to allowing complex prompt logic.
+- __Templating__: Use Jinja2 templating in your prompts to allow complex prompt logic.
 - __Default and Custom Prompts__: A default prompt template is provided but you can also specify your own.
 - __Retry Logic__: Number of retries is user configurable.
 - __Validation__: Outputs from the LLM are validated against your requested response model. Errors are fed back to the LLM to try and correct any validation failures.

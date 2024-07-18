@@ -21,7 +21,7 @@ Modelsmith provides a unified interface over all of these. It has been designed 
 
 :octicons-sparkle-fill-24: __Structured Responses__: Specify both Pydantic models and Python types as the outputs of your LLM responses.
 
-:octicons-sparkle-fill-24: __Templating__: Use Jinja2 templating in your prompts to allowing complex prompt logic.
+:octicons-sparkle-fill-24: __Templating__: Use Jinja2 templating in your prompts to allow complex prompt logic.
 
 :octicons-sparkle-fill-24: __Default and Custom Prompts__: A default prompt template is provided but you can also specify your own.
 
