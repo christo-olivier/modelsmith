@@ -1,5 +1,5 @@
 import re
-from typing import Iterable
+from collections.abc import Iterable
 
 
 def find_patterns(input_string: str, patterns: str | Iterable[str]) -> list[str]:

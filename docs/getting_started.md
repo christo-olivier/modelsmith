@@ -18,7 +18,7 @@ class User(BaseModel):
 
 
 # Create your forge instance
-forge = Forge(model=OpenAIModel("gpt-3.5-turbo"), response_model=User)
+forge = Forge(model=OpenAIModel("gpt-5"), response_model=User)
 
 # Generate a User instance from the prompt
 user = forge.generate("Terry Tate 60. Lives in Irvine, United States.")
@@ -31,7 +31,7 @@ print(user)  # name='Terry Tate' age=60 city='Irvine' country='United States'
 Modelsmith does not restrict you to either Pydantic models or Python types. You can combine them in the same response. Below we extract a list of Pydantic model instances.
 
 ```python
-from modelsmith import Forge, VertexAIGenerativeModel
+from modelsmith import Forge, GeminiModel
 from pydantic import BaseModel, Field
 
 
@@ -42,7 +42,7 @@ class City(BaseModel):
 
 # Pass a list of Pydantic models to the response_model argument.
 forge = Forge(
-    model=VertexAIGenerativeModel("gemini-1.5-pro"),
+    model=GeminiModel("gemini-2.5-pro"),
     response_model=list[City],
 )
 
@@ -53,10 +53,10 @@ print(response)  # [City(city='Irvine', state='CA'), City(city='Dallas', state='
 
 ## Using different model types
 
-Using a different model is as simple as passing the desired model class to the Forge. Taking the example above lets use `text-bison` instead of `gemini-pro`.
+Using a different model is as simple as passing the desired model class to the Forge. Taking the example above lets use `gemini-2.5-flash` instead of `gemini-2.5-pro`.
 
 ```python
-from modelsmith import Forge, VertexAITextGenerationModel  # import the correct class
+from modelsmith import Forge, GeminiModel  # import the correct class
 from pydantic import BaseModel, Field
 
 
@@ -65,9 +65,9 @@ class City(BaseModel):
     state: str = Field(description="2-letter abbreviation of the state")
 
 
-# text-bison instead of gemini-pro
+# gemini-2.5-flash instead of gemini-2.5-pro
 forge = Forge(
-    model=VertexAITextGenerationModel("text-bison"),
+    model=GeminiModel("gemini-2.5-flash"),
     response_model=list[City],
 )
 
@@ -76,7 +76,7 @@ response = forge.generate("I have lived in Irvine, CA and Dallas TX")
 print(response)  # [City(city='Irvine', state='CA'), City(city='Dallas', state='TX')]
 ```
 
-If we want to use an Anthropic model the same applies. Simply select the appropriate model class, specify which Anthropic model to use (in this case `claude-3-haiku-20240307`), and pass it to the `Forge` instance.
+If we want to use an Anthropic model the same applies. Simply select the appropriate model class, specify which Anthropic model to use (in this case `claude-sonnet-4-20250514`), and pass it to the `Forge` instance.
 
 ```python
 from modelsmith import Forge, AnthropicModel  # import the correct class
@@ -88,9 +88,9 @@ class City(BaseModel):
     state: str = Field(description="2-letter abbreviation of the state")
 
 
-# Anthropic's claude-3-haiku-20240307 instead of gemini-pro
+# Anthropic's claude-sonnet-4-20250514 instead of gemini-2.5-flash
 forge = Forge(
-    model=AnthropicModel("claude-3-haiku-20240307"),
+    model=AnthropicModel("claude-sonnet-4-20250514"),
     response_model=list[City],
 )
 
@@ -110,7 +110,7 @@ from modelsmith import Forge, VertexAIGenerativeModel
 
 # Create your forge instance
 forge = Forge(
-    model=VertexAIGenerativeModel("gemini-1.5-flash"), response_model=list[str]
+    model=VertexAIGenerativeModel("gemini-2.5-flash"), response_model=list[str]
 )
 
 # Define examples, using inspect.cleandoc to remove indentation
@@ -177,7 +177,7 @@ The same example above would also work if the `response_model_json` was left out
 ```python
 import inspect
 
-from modelsmith import Forge, VertexAITextGenerationModel
+from modelsmith import Forge, GeminiModel
 
 # Create your custom prompt
 my_prompt = inspect.cleandoc("""
@@ -188,7 +188,7 @@ my_prompt = inspect.cleandoc("""
 
 # Create your forge instance, passing your prompt
 forge = Forge(
-    model=VertexAITextGenerationModel("text-bison"),
+    model=GeminiModel("gemini-2.5-flash"),
     response_model=list,
     prompt=my_prompt,
 )
@@ -224,7 +224,7 @@ You can change this by passing the `max_retries` parameter to the `Forge` class.
 ```python
 # Create your forge instance, setting the number of retries
 forge = Forge(
-    model=VertexAIGenerativeModel("gemini-1.0-pro"), response_model=int, max_retries=2
+    model=GeminiModel("gemini-2.5-pro"), response_model=int, max_retries=2
 )
 ```
 
@@ -234,7 +234,7 @@ Modelsmith looks for JSON output in the LLM response. It uses regular expression
 
 ## Failing silently
 
-Modelsmith will raise a `ModelNotDerivedError` exception if no valid response was obtained. You can change this by passing `False` to the `raise_on_failure` parameter of the `Forge` class.
+Modelsmith will raise a `ResponseNotDerivedError` exception if no valid response was obtained. You can change this by passing `False` to the `raise_on_failure` parameter of the `Forge` class.
 
 This will suppress the exception and return `None` instead.
 

@@ -15,7 +15,11 @@ The `AnthropicModel` class takes an optional `api_key` parameter. If not provide
 
 ## Google Cloud Authentication
 
-Authentication to Google Cloud is done via the Application Default Credentials flow. So make sure you have ADC configured. See [Google's documentation](https://cloud.google.com/docs/authentication/provide-credentials-adc) for more details.
+Authentication to Google Cloud is done via either:
+- Application Default Credentials flow. See [Google's documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstart?usertype=adc) for more details.
+- Gemini API Key. See [Google Gemini API docs](https://ai.google.dev/gemini-api/docs/api-key?_gl=1*1ya8hy4*_up*MQ..*_ga*MTA2MDc3MjY2MC4xNzU3NzkwNDQz*_ga_P1DBVKWT6V*czE3NTc3OTgwNTMkbzMkZzAkdDE3NTc3OTgwNTMkajYwJGwwJGgxMDQzMjc4MTU2).
+
+The `GeminiModel` allows you to pass the `vertexai`, `api_key`, `project`, and `location` when you initialize the class instance. If you do not pass this in it will be inferred from the environment variables `GOOGLE_GENAI_USE_VERTEXAI`, `GOOGLE_API_KEY`, `GOOGLE_CLOUD_PROJECT`, and `GOOGLE_CLOUD_LOCATION` as per the documentation.
 
 ## Open AI Authentication
 Authentication to OpenAI is done via the OpenAI flow. See the [OpenAI documentation](https://platform.openai.com/docs/quickstart/step-2-set-up-your-api-key) for more details.

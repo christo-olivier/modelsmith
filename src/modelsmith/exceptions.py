@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 
 class CombinedException(Exception):
@@ -13,7 +13,7 @@ class CombinedException(Exception):
         return ", ".join(str(e) for e in self.exceptions)
 
 
-class ModelNotDerivedError(Exception):
+class ResponseNotDerivedError(Exception):
     """
     Exception raised when a pydantic model could not be created from the response of
     the LLM.
