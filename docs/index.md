@@ -4,15 +4,11 @@ Modelsmith is a Python library that allows you to get structured responses in th
 
 Currently it allows you to use the following classes of model:
 
-- __AnthropicModel__ (used with Anthropic's set of models such as `claude-3-haiku`, `claude-3-sonnet`, `claude-3-opus` and `claude-3_5-sonnet`)
+- __AnthropicModel__ (used with Anthropic's full set of models)
 
-- __OpenAIModel__ (used with OpenAI's set of models such as `gpt-3.5-turbo`, `gpt-4` and `gpt-4o`)
+- __OpenAIModel__ (used with OpenAI's full set of models)
 
-- __VertexAIChatModel__ (used with Google Vertex AI's chat models such as `chat-bison`)
-
-- __VertexAITextGenerationModel__ (used with Google Vertex AI's text generation models such as `text-bison`)
-
-- __VertexAIGenerativeModel__ (used with Google Vertex AI's generative models such as `gemini-pro`)
+- __GeminiModel__ (used with Google's full set of Gemini models)
 
 
 Modelsmith provides a unified interface over all of these. It has been designed to be extensible and can adapt to other models in the future.

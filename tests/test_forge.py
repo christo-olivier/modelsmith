@@ -2,15 +2,13 @@ import inspect
 from typing import Any
 
 import pytest
-from modelsmith import Forge, ModelNotDerivedError
+
+from modelsmith import Forge, ResponseNotDerivedError
 from modelsmith.language_models import (
     AnthropicModel,
+    GeminiModel,
     OpenAIModel,
-    VertexAIChatModel,
-    VertexAIGenerativeModel,
-    VertexAITextGenerationModel,
 )
-
 from tests.models import City, User
 from tests.settings import MODEL_INSTANCE_PARAMS, MODEL_SETTINGS_PARAMS
 
@@ -25,11 +23,7 @@ from tests.settings import MODEL_INSTANCE_PARAMS, MODEL_SETTINGS_PARAMS
 )
 @pytest.mark.sequential
 def test_forge_few_shot_pydantic_model(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -67,11 +61,7 @@ def test_forge_few_shot_pydantic_model(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_pydantic_model(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -95,9 +85,9 @@ def test_forge_raise_on_failure_exception() -> None:
     This test checks that when a model cannot be derived and the `raise_on_failure` flag
     is set to True, that a ModelNotDerivedError is raised.
     """
-    with pytest.raises(expected_exception=ModelNotDerivedError):
+    with pytest.raises(expected_exception=ResponseNotDerivedError):
         forge = Forge(
-            model=VertexAITextGenerationModel("text-bison"),
+            model=GeminiModel("text-bison"),
             response_model=User,
             max_retries=1,
         )
@@ -115,7 +105,7 @@ def test_forge_raise_on_failure_no_exception() -> None:
     is set to False, None is return as the value instead of an exception being raised.
     """
     forge = Forge(
-        model=VertexAITextGenerationModel("text-bison"),
+        model=GeminiModel("text-bison"),
         response_model=User,
         max_retries=1,
         raise_on_failure=False,
@@ -139,11 +129,7 @@ def test_forge_raise_on_failure_no_exception() -> None:
 )
 @pytest.mark.sequential
 def test_forge_few_shot_python_list(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -181,11 +167,7 @@ def test_forge_few_shot_python_list(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_python_list(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -214,11 +196,7 @@ def test_forge_zero_shot_python_list(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_python_list_integers(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -248,11 +226,7 @@ def test_forge_zero_shot_python_list_integers(
 )
 @pytest.mark.sequential
 def test_forge_few_shot_python_list_floats(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -291,11 +265,7 @@ def test_forge_few_shot_python_list_floats(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_python_list_floats(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -325,11 +295,7 @@ def test_forge_zero_shot_python_list_floats(
 )
 @pytest.mark.sequential
 def test_forge_few_shot_python_float(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -369,11 +335,7 @@ def test_forge_few_shot_python_float(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_python_float(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -402,11 +364,7 @@ def test_forge_zero_shot_python_float(
 )
 @pytest.mark.sequential
 def test_forge_few_shot_python_integer(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -448,11 +406,7 @@ def test_forge_few_shot_python_integer(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_python_integer(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """
@@ -482,11 +436,7 @@ def test_forge_zero_shot_python_integer(
 )
 @pytest.mark.sequential
 def test_forge_zero_shot_list_pydantic_location(
-    model: AnthropicModel
-    | VertexAIChatModel
-    | VertexAIGenerativeModel
-    | VertexAITextGenerationModel
-    | OpenAIModel,
+    model: AnthropicModel | GeminiModel | OpenAIModel,
     model_settings: dict[str, Any],
 ) -> None:
     """

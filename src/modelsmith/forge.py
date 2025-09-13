@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Generic, Iterable, TypeVar
+from collections.abc import Iterable
+from typing import Any, Generic, TypeVar
 
 from pydantic import ValidationError
 from tenacity import RetryError, Retrying, stop_after_attempt
@@ -7,15 +8,13 @@ from tenacity import RetryError, Retrying, stop_after_attempt
 from modelsmith.enums import ResponseModelType
 from modelsmith.exceptions import (
     CombinedException,
-    ModelNotDerivedError,
     PatternNotFound,
+    ResponseNotDerivedError,
 )
 from modelsmith.language_models import (
     AnthropicModel,
+    GeminiModel,
     OpenAIModel,
-    VertexAIChatModel,
-    VertexAIGenerativeModel,
-    VertexAITextGenerationModel,
 )
 from modelsmith.prompt import Prompt
 from modelsmith.response_model import ResponseModel
@@ -35,11 +34,7 @@ class Forge(Generic[T]):
     def __init__(
         self,
         *,
-        model: AnthropicModel
-        | VertexAIChatModel
-        | VertexAIGenerativeModel
-        | VertexAITextGenerationModel
-        | OpenAIModel,
+        model: AnthropicModel | GeminiModel | OpenAIModel,
         response_model: type[T],
         prompt: str | None = None,
         match_patterns: str | Iterable[str] = (r"```json(.*?)```", r"\{.*\}"),
@@ -114,7 +109,7 @@ class Forge(Generic[T]):
         except RetryError as e:
             # Raise the final exception if raise_on_failure is True
             if self.raise_on_failure:
-                raise ModelNotDerivedError(prepared_prompt) from e
+                raise ResponseNotDerivedError(prepared_prompt) from e
 
         return model_response
 

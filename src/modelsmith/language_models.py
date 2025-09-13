@@ -3,13 +3,9 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from anthropic import Anthropic
+from google import genai
+from google.genai.types import GenerateContentConfigDict, HttpOptions
 from openai import OpenAI
-from vertexai.generative_models import GenerationResponse, GenerativeModel
-from vertexai.language_models import (
-    ChatModel,
-    TextGenerationModel,
-    TextGenerationResponse,
-)
 
 DEFAULT_MAX_TOKENS = 1024
 
@@ -102,30 +98,48 @@ class OpenAIModel(BaseLanguageModel):
         :param model_settings: The dictionary containing the model's settings.
         :return: The response from the LLM.
         """
-        response = self._client.chat.completions.create(
+        response = self._client.responses.create(
             model=self.model_name,
-            messages=[{"role": "user", "content": input}],
+            input=input,
             **(model_settings or {}),
-        )  # type: ignore
-        return response.choices[0].message.content
+        )
+        return response.output_text
 
 
-class VertexAIChatModel(BaseLanguageModel):
+class GeminiModel(BaseLanguageModel):
     """
-    Class that wraps the Vertex AI ChatModel to handle sending inputs and
+    Class that wraps the Google Gemini models to handle sending inputs and
     receiving outputs.
     """
 
     def __init__(
         self,
         model_name: str,
+        vertexai: bool | None = None,
+        api_key: str | None = None,
+        project: str | None = None,
+        location: str | None = None,
     ) -> None:
-        self.model = ChatModel.from_pretrained(model_name)
-        self.chat_session = self.model.start_chat()
+        """
+        Create a new Google Gemini model instance.
 
-    def send(
-        self, input: str, model_settings: dict[str, Any] | None = None
-    ) -> TextGenerationResponse:
+        Automatically infers the following arguments from their corresponding
+            environment variables if they are not provided:
+            - `vertexai` from `GOOGLE_GENAI_USE_VERTEXAI`
+            - `api_key` from `GOOGLE_API_KEY`
+            - `project` from `GOOGLE_CLOUD_PROJECT`
+            - `location` from `GOOGLE_CLOUD_LOCATION`
+        """
+        self._client = genai.Client(
+            vertexai=vertexai,
+            api_key=api_key,
+            project=project,
+            location=location,
+            http_options=HttpOptions(api_version="v1"),
+        )
+        self.model_name = model_name
+
+    def send(self, input: str, model_settings: dict[str, Any] | None = None) -> str:
         """
         Send the input to the LLM using the correct method from the underlying model.
         Return the response from the LLM.
@@ -134,59 +148,9 @@ class VertexAIChatModel(BaseLanguageModel):
         :param model_settings: The dictionary containing the model's settings.
         :return: The response from the LLM.
         """
-        response = self.chat_session.send_message(input, **(model_settings or {}))
-        return response.text
-
-
-class VertexAIGenerativeModel(BaseLanguageModel):
-    """
-    Class that wraps the Vertex AI GenerativeModel to handle sending inputs and
-    receiving outputs.
-    """
-
-    def __init__(
-        self,
-        model_name: str,
-    ) -> None:
-        self.model = GenerativeModel(model_name)
-
-    def send(
-        self, input: str, model_settings: dict[str, Any] | None = None
-    ) -> GenerationResponse:
-        """
-        Send the input to the LLM using the correct method from the underlying model.
-        Return the response from the LLM.
-
-        :param input: The input string to send to the LLM.
-        :param model_settings: The dictionary containing the model's settings.
-        :return: The response from the LLM.
-        """
-        response = self.model.generate_content(input, generation_config=model_settings)
-        return response.text
-
-
-class VertexAITextGenerationModel(BaseLanguageModel):
-    """
-    Class that wraps the Vertex AI TextGenerationModel to handle sending inputs and
-    receiving outputs.
-    """
-
-    def __init__(
-        self,
-        model_name: str,
-    ) -> None:
-        self.model = TextGenerationModel.from_pretrained(model_name)
-
-    def send(
-        self, input: str, model_settings: dict[str, Any] | None = None
-    ) -> TextGenerationResponse:
-        """
-        Send the input to the LLM using the correct method from the underlying model.
-        Return the response from the LLM.
-
-        :param input: The input string to send to the LLM.
-        :param model_settings: The dictionary containing the model's settings.
-        :return: The response from the LLM.
-        """
-        response = self.model.predict(input, **(model_settings or {}))
-        return response.text
+        response = self._client.models.generate_content(
+            model=self.model_name,
+            contents=input,
+            config=GenerateContentConfigDict(**(model_settings or {})),  # type: ignore
+        )
+        return response.text or ""

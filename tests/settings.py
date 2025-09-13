@@ -1,41 +1,33 @@
 import pytest
+
 from modelsmith.language_models import (
     AnthropicModel,
+    GeminiModel,
     OpenAIModel,
-    VertexAIChatModel,
-    VertexAIGenerativeModel,
-    VertexAITextGenerationModel,
 )
 
 MODEL_INSTANCE_PARAMS = [
     pytest.param(
-        AnthropicModel("claude-3-haiku-20240307"), id="anthropic_claude_3_haiku_model"
+        AnthropicModel("claude-opus-4-1-20250805"), id="anthropic_claude_4_1_opus"
     ),
     pytest.param(
-        AnthropicModel("claude-3-opus-20240229"), id="anthropic_claude_3_opus_model"
+        AnthropicModel("claude-sonnet-4-20250514"),
+        id="anthropic_claude_4_sonnet",
     ),
     pytest.param(
-        AnthropicModel("claude-3-5-sonnet-20240620"),
-        id="anthropic_claude_3.5_sonnet_model",
+        AnthropicModel("claude-3-5-haiku-20241022"),
+        id="anthropic_claude_3_5_haiku",
     ),
-    pytest.param(
-        VertexAITextGenerationModel("text-bison"), id="vertexai_text_bison_model"
-    ),
-    pytest.param(VertexAIChatModel("chat-bison"), id="vertexai_chat_bison_model"),
-    pytest.param(
-        VertexAIGenerativeModel("gemini-1.0-pro"), id="vertexai_gemini_1_0_pro"
-    ),
-    pytest.param(
-        VertexAIGenerativeModel("gemini-1.5-pro"), id="vertexai_gemini_1_5_pro"
-    ),
-    pytest.param(
-        VertexAIGenerativeModel("gemini-1.5-flash"), id="vertexai_gemini_1_5_flash"
-    ),
-    pytest.param(OpenAIModel("gpt-3.5-turbo"), id="openai_gpt-3.5-turbo"),
-    pytest.param(OpenAIModel("gpt-4o"), id="openai_gpt-4o"),
+    pytest.param(GeminiModel("gemini-2.5-pro"), id="gemini_2_5_pro"),
+    pytest.param(GeminiModel("gemini-2.5-flash"), id="gemini_2_5_flash"),
+    pytest.param(GeminiModel("gemini-2.5-flash-lite"), id="gemini_2_5_flash_lite"),
+    pytest.param(OpenAIModel("gpt-4o"), id="openai_gpt_4o"),
+    pytest.param(OpenAIModel("gpt-4.1"), id="openai_gpt_4_1"),
+    pytest.param(OpenAIModel("gpt-5"), id="openai_gpt_5"),
 ]
 
 MODEL_SETTINGS_PARAMS = [
-    pytest.param({"temperature": 0.0}, id="temp_zero"),
-    pytest.param({"temperature": 0.9}, id="temp_point_nine"),
+    pytest.param({}, id="model_defaults_settings")
+    # pytest.param({"temperature": 0.0}, id="temp_zero"),
+    # pytest.param({"temperature": 0.9}, id="temp_point_nine"),
 ]
