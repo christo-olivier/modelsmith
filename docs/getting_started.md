@@ -106,11 +106,11 @@ The previous examples use the built in prompt template in zero-shot mode. The de
 ```python
 import inspect
 
-from modelsmith import Forge, VertexAIGenerativeModel
+from modelsmith import Forge, GeminiModel
 
 # Create your forge instance
 forge = Forge(
-    model=VertexAIGenerativeModel("gemini-2.5-flash"), response_model=list[str]
+    model=GeminiModel("gemini-2.5-flash"), response_model=list[str]
 )
 
 # Define examples, using inspect.cleandoc to remove indentation
